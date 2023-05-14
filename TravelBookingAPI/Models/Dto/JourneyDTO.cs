@@ -16,7 +16,7 @@ namespace TravelBookingAPI.Models.Dto
         public int FlightId { get; set; }
         public int NumberOfPassengers { get; set; }
 
-        public Airline Airline { get; set; }
-        public Flight Flight { get; set; }
+        public AirlineDTO Airline { get; set; }
+        public FlightDTO Flight { get; set; }
     }
 }

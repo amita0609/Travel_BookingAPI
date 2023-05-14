@@ -19,10 +19,16 @@ namespace TravelBookingAPI.Controllers
         protected APIResponse _response;
         private readonly IJourneyRepository _dbJourney;
         private readonly IMapper _mapper;
+        private readonly IAirlineRepository _dbAirline;
+        private readonly IFlightRepository _dbFlight;
 
-        public JourneyController(IJourneyRepository dbJourney, IMapper mapper)
+
+        public JourneyController(IJourneyRepository dbJourney, IMapper mapper, IAirlineRepository dbAirline,
+            IFlightRepository dbFlight)
         {
             _dbJourney = dbJourney;
+            _dbAirline = dbAirline;
+            _dbFlight = dbFlight;
             _mapper = mapper;
             this._response = new();
         }
@@ -34,7 +40,7 @@ namespace TravelBookingAPI.Controllers
         {
             try
             {
-                IEnumerable<Journey> journey = await _dbJourney.GetAllAsync();
+                IEnumerable<Journey> journey = await _dbJourney.GetAllAsync(includeProperties: "Airline");  //
                 _response.Result = _mapper.Map<List<JourneyDTO>>(journey);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -93,19 +99,20 @@ namespace TravelBookingAPI.Controllers
         {
             try
             {
-                //if (await _dbJourney.GetAsync(u => u.JourneyName.ToLower() == journeyCreateDTO.FlightName.ToLower()) != null)
-                //{
-                //    ModelState.AddModelError("ErrorMessages", "Journey already Exists!");
-                //    return BadRequest(ModelState);
-                //}
+
+                if (await _dbAirline.GetAsync(u => u.AirlineId == journeyCreateDTO.AirlineId) == null && await _dbFlight.GetAsync(u => u.FlightId == journeyCreateDTO.FlightId) == null)
+
+                {
+                    ModelState.AddModelError("ErrorMessages", "Airline Id and Flight id is Invalid!");
+                    return BadRequest(ModelState);
+                }
+
 
                 if (journeyCreateDTO == null)
                 {
                     return BadRequest(journeyCreateDTO);
 
                 }
-
-
 
                 Journey journey = _mapper.Map<Journey>(journeyCreateDTO);
                 await _dbJourney.CreateAsync(journey);
@@ -123,8 +130,10 @@ namespace TravelBookingAPI.Controllers
             return _response;
         }
 
+
+
         //delete
-        [Authorize(Roles ="admin")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -169,6 +178,13 @@ namespace TravelBookingAPI.Controllers
                 {
                     return BadRequest();
                 }
+
+                if (await _dbAirline.GetAsync(u => u.AirlineId == journeyUpdateDTO.AirlineId) == null && await _dbFlight.GetAsync(u => u.FlightId == journeyUpdateDTO.FlightId) == null)
+
+                {
+                    ModelState.AddModelError("ErrorMessages", "Airline Id and Flight id is Invalid!");
+                    return BadRequest(ModelState);
+                }
                 Journey model = _mapper.Map<Journey>(journeyUpdateDTO);
                 await _dbJourney.UpdateAsync(model);
                 _response.StatusCode = HttpStatusCode.NoContent;
@@ -187,6 +203,6 @@ namespace TravelBookingAPI.Controllers
 
 
 
-    }
+} 
 }
 

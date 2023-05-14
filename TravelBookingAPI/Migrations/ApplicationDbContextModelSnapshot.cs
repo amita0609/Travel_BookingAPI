@@ -74,10 +74,7 @@ namespace TravelBookingAPI.Migrations
             modelBuilder.Entity("TravelBookingAPI.Models.Journey", b =>
                 {
                     b.Property<int>("JourneyId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("JourneyId"));
 
                     b.Property<int>("AirlineId")
                         .HasColumnType("int");

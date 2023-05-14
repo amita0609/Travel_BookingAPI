@@ -6,7 +6,7 @@ namespace TravelBookingAPI.Models
     public class Journey
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int JourneyId { get; set; }
         public string FromCity { get; set; }
         public string ToCity { get; set; }
