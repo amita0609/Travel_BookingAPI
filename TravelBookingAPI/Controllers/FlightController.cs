@@ -18,11 +18,13 @@ namespace TravelBookingAPI.Controllers
     {
         protected APIResponse _response;
         private readonly IFlightRepository _dbFlight;
+        private readonly IAirlineRepository _dbAirline;
         private readonly IMapper _mapper;
 
-        public FlightController(IFlightRepository dbFlight, IMapper mapper)
+        public FlightController(IFlightRepository dbFlight, IAirlineRepository dbAirline, IMapper mapper)
         {
             _dbFlight = dbFlight;
+            _dbAirline=dbAirline;
             _mapper = mapper;
             this._response = new();
         }
@@ -93,6 +95,14 @@ namespace TravelBookingAPI.Controllers
         {
             try
             {
+                if (await _dbAirline.GetAsync(u => u.AirlineCode == flightCreateDTO.AirlineCode) == null)
+                {
+                    ModelState.AddModelError("ErrorMessages", "Airline code is Invalid!");
+                    return BadRequest(ModelState);
+                }
+
+
+
                 if (await _dbFlight.GetAsync(u => u.FlightName.ToLower() == flightCreateDTO.FlightName.ToLower()) != null)
                 {
                     ModelState.AddModelError("ErrorMessages", "flight already Exists!");
@@ -166,6 +176,13 @@ namespace TravelBookingAPI.Controllers
         {
             try
             {
+                if (await _dbAirline.GetAsync(u => u.AirlineCode == flightUpdateDTO.AirlineCode) == null)
+                {
+                    ModelState.AddModelError("ErrorMessages", "Airline code is Invalid!");
+                    return BadRequest(ModelState);
+                }
+
+
                 if (flightUpdateDTO == null || id != flightUpdateDTO.FlightId)
                 {
                     return BadRequest();

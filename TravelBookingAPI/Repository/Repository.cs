@@ -11,14 +11,13 @@ namespace TravelBookingAPI.Repository
         private readonly ApplicationDbContext _db;
         internal DbSet<T> dbSet;
 
-        //public Repository()
-        //{
-
-        //}
-
+       
         public Repository(ApplicationDbContext db)
         {
             _db = db;
+            // _db.Airlines.Include(u=>u.Airline).ToList();
+           // _db.Flights.Include(u=>u.Flight).ToList();
+            
             this.dbSet = _db.Set<T>();
         }
 
@@ -36,18 +35,32 @@ namespace TravelBookingAPI.Repository
             {
                 query = query.Where(filter);
             }
+            if (includeProperties != null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
             return await query.ToListAsync();
 
         }
 
       
-
+        //"Airline,Flight"
         public async Task<T> GetAsync(Expression<Func<T, bool>> filter = null, bool tracked = true, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
             if (tracked!)
             {
                 query = query.AsNoTracking();
+            }
+            if (includeProperties != null)
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
             }
             if (filter != null)
             {
