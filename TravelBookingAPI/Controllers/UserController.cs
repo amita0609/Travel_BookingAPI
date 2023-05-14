@@ -15,15 +15,60 @@ namespace TravelBookingAPI.Controllers
     public class UserController : ControllerBase
     {
         protected APIResponse _response;
-        private readonly IUserRepository _dbUser;
+        private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
 
         public UserController(IUserRepository dbUser, IMapper mapper)
         {
-            _dbUser = dbUser;
+            _userRepo = dbUser;
             _mapper = mapper;
             this._response = new();
         }
+
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
+        {
+            var loginResponse = await _userRepo.Login(model);
+            if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
+            {
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                _response.ErrorMessages.Add("Username or password is incorrect");
+                return BadRequest(_response);
+            }
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.IsSuccess = true;
+            _response.Result = loginResponse;
+            return Ok(_response);
+        }
+
+        //[HttpPost("register")]
+        //public async Task<IActionResult> Register([FromBody] RegistrationRequestDTO model)
+        //{
+        //    bool ifUserNameUnique = _userRepo.IsUniqueUser(model.Name);
+        //    if (!ifUserNameUnique)
+        //    {
+        //        _response.StatusCode = HttpStatusCode.BadRequest;
+        //        _response.IsSuccess = false;
+        //        _response.ErrorMessages.Add("Username already exists");
+        //        return BadRequest(_response);
+        //    }
+
+        //    var user = await _userRepo.Register(model);
+        //    if (user == null)
+        //    {
+        //        _response.StatusCode = HttpStatusCode.BadRequest;
+        //        _response.IsSuccess = false;
+        //        _response.ErrorMessages.Add("Error while registering");
+        //        return BadRequest(_response);
+        //    }
+        //    _response.StatusCode = HttpStatusCode.OK;
+        //    _response.IsSuccess = true;
+        //    return Ok(_response);
+        //}
+
+
 
         //get
         [HttpGet]
@@ -32,7 +77,7 @@ namespace TravelBookingAPI.Controllers
         {
             try
             {
-                IEnumerable<User> users = await _dbUser.GetAllAsync();
+                IEnumerable<User> users = await _userRepo.GetAllAsync();
                 _response.Result = _mapper.Map<List<UserDTO>>(users);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -62,7 +107,7 @@ namespace TravelBookingAPI.Controllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var user = await _dbUser.GetAsync(u => u.Id == id);
+                var user = await _userRepo.GetAsync(u => u.Id == id);
                 if (user == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
@@ -87,26 +132,24 @@ namespace TravelBookingAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<APIResponse>> CreateUserAsync([FromBody] CreateUserDTO createUserDTO)
+        public async Task<ActionResult<APIResponse>> CreateUserAsync([FromBody] UserCreateDTO userCreateDTO)
         {
             try
             {
-                if (await _dbUser.GetAsync(u => u.Name.ToLower() == createUserDTO.Name.ToLower()) != null)
+                if (await _userRepo.GetAsync(u => u.Name.ToLower() == userCreateDTO.Name.ToLower()) != null)
                 {
                     ModelState.AddModelError("ErrorMessages", "User already Exists!");
                     return BadRequest(ModelState);
                 }
 
-                if (createUserDTO == null)
+                if (userCreateDTO == null)
                 {
-                    return BadRequest(createUserDTO);
+                    return BadRequest(userCreateDTO);
 
                 }
 
-
-
-                User users = _mapper.Map<User>(createUserDTO);
-                await _dbUser.CreateAsync(users);
+                User users = _mapper.Map<User>(userCreateDTO);
+                await _userRepo.CreateAsync(users);
                 _response.Result = _mapper.Map<UserDTO>(users);
                 _response.StatusCode = HttpStatusCode.Created;
 
@@ -135,12 +178,12 @@ namespace TravelBookingAPI.Controllers
                 {
                     return BadRequest();
                 }
-                var user = await _dbUser.GetAsync(u => u.Id == id);
+                var user = await _userRepo.GetAsync(u => u.Id == id);
                 if (user == null)
                 {
                     return NotFound();
                 }
-                await _dbUser.RemoveAsync(user);
+                await _userRepo.RemoveAsync(user);
 
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
@@ -168,7 +211,7 @@ namespace TravelBookingAPI.Controllers
                     return BadRequest();
                 }
                 User model = _mapper.Map<User>(userUpdateDTO);
-                await _dbUser.UpdateAsync(model);
+                await _userRepo.UpdateAsync(model);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);

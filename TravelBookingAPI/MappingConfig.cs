@@ -9,9 +9,20 @@ namespace TravelBookingAPI
         public MappingConfig()
         {
             CreateMap<User, UserDTO>().ReverseMap();
-           
-            CreateMap<User, CreateUserDTO>().ReverseMap();
+            CreateMap<User, UserCreateDTO>().ReverseMap();
             CreateMap<User, UserUpdateDTO>().ReverseMap();
+
+            CreateMap<Airline, AirlineDTO>().ReverseMap();
+            CreateMap<Airline, AirlineCreateDTO>().ReverseMap();
+            CreateMap<Airline, AirlineUpdateDTO>().ReverseMap();
+
+            CreateMap<Flight, FlightDTO>().ReverseMap();
+            CreateMap<Flight, FlightCreateDTO>().ReverseMap();
+            CreateMap<Flight, FlightUpdateDTO>().ReverseMap();
+
+            CreateMap<Journey, JourneyDTO>().ReverseMap();
+            CreateMap<Journey, JourneyCreateDTO>().ReverseMap();
+            CreateMap<Journey, JourneyUpdateDTO>().ReverseMap();
         }
     }
 }
