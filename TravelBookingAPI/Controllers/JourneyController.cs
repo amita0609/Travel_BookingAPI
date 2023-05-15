@@ -40,7 +40,7 @@ namespace TravelBookingAPI.Controllers
         {
             try
             {
-                IEnumerable<Journey> journey = await _dbJourney.GetAllAsync(includeProperties: "Airline,Flight");  //
+                IEnumerable<Journey> journey = await _dbJourney.GetAllAsync(includeProperties: "Airline,Flight");  
                 _response.Result = _mapper.Map<List<JourneyDTO>>(journey);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);

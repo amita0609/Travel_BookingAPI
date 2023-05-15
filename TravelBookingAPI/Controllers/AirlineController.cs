@@ -28,7 +28,7 @@ namespace TravelBookingAPI.Controllers
         }
 
         //get
-        [Authorize]
+       
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetAllAirline()
@@ -36,7 +36,7 @@ namespace TravelBookingAPI.Controllers
             try
             {
                 IEnumerable<Airline> Airlines = await _dbAirline.GetAllAsync();
-                _response.Result = _mapper.Map<List<AirlineDTO>>(Airlines);
+                _response.Result = _mapper.Map<IEnumerable<AirlineDTO>>(Airlines);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -50,7 +50,7 @@ namespace TravelBookingAPI.Controllers
         }
 
 
-        [Authorize(Roles = "admin")]
+       
         //getById
         [HttpGet("{id:int}", Name = "GetAirline")]
         [ProducesResponseType(StatusCodes.Status200OK)]

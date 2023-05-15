@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Net.Mail;
 
 namespace TravelBookingAPI.Models.Dto
@@ -7,7 +8,9 @@ namespace TravelBookingAPI.Models.Dto
    // [Index(nameof(AirlineCode), IsUnique = true)]
     public class AirlineDTO
     {
-        public int Id { get; set; }
+        //[Key]
+        //[DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int AirlineId { get; set; }
 
         [RegularExpression("^[a-zA-Z0-9]*$", ErrorMessage = "Only Alphabets and Numbers allowed.")]
         public string AirlineCode { get; set; }
